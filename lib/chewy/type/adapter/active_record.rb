@@ -70,7 +70,7 @@ module Chewy
             yield ids
             break if ids.size < batch_size
             last_id = ids.last.is_a?(Array) ? ids.last.first : ids.last
-            ids = pluck(scope.where(target_id.gt(last_id)), fields: fields, typecast: typecast)
+            ids = pluck(scope.where(target_id.between((last_id + 1)..(last_id + batch_size))), fields: fields, typecast: typecast)
           end
 
           count
