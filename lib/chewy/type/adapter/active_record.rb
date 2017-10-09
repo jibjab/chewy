@@ -64,15 +64,17 @@ module Chewy
 
           id_scope = scope.reorder(target_id.desc).limit(1)
           scope = scope.reorder(target_id.asc).limit(batch_size)
-          ids = pluck(scope, fields: fields, typecast: typecast)
           count = 0
+          first_id = 1
+          last_id = batch_size
+          final_id = pluck(id_scope).first
 
-          while ids.present?
+          while first_id <= final_id
+            ids = pluck(scope.where(target_id.between(first_id..last_id)), fields: fields, typecast: typecast)
             yield ids
-            break if ids.size < batch_size
-            last_id = ids.last.is_a?(Array) ? ids.last.first : ids.last
+            first_id = last_id + 1
+            last_id += batch_size
             final_id = pluck(id_scope).first
-            ids = pluck(scope.where(target_id.between((last_id + 1)..final_id)), fields: fields, typecast: typecast)
           end
 
           count
