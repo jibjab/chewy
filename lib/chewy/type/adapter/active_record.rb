@@ -71,7 +71,7 @@ module Chewy
 
           while first_id <= final_id
             ids = pluck(scope.where(target_id.between(first_id..last_id)), fields: fields, typecast: typecast)
-            yield ids
+            yield ids if ids.present?
             first_id = last_id + 1
             last_id += batch_size
             final_id = pluck(id_scope).first
