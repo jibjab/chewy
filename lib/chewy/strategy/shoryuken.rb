@@ -26,7 +26,13 @@ module Chewy
       def leave
         @stash.each do |type, ids|
           next if ids.empty?
-          Shoryuken::Worker.perform_async({type: type.name, ids: ids}, queue: shoryuken_queue)
+          body = {type: type.name, ids: ids}
+          Shoryuken::Worker.perform_async(
+            body,
+            queue: shoryuken_queue,
+            message_group_id: type.name,
+            message_deduplication_id: Digest::SHA256.hexdigest("#{body}#{Time.zone.now}")
+          )
         end
       end
 
